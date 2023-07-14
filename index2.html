@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rắn săn mồi</title>
+  <style>
+    #gameCanvas {
+      border: 1px solid #000;
+      margin-left: 25%;
+      background-image: url("asstret/backgroud.jpg");
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+  <script>
+    // Khởi tạo canvas và context
+    let canvas = document.getElementById("gameCanvas");
+    let ctx = canvas.getContext("2d");
+
+    // Kích thước ô vuông và số lượng ô
+    let box = 20;
+    let canvasSize = canvas.width / box;
+
+    // Khởi tạo rắn
+    let snake = [];
+    snake[0] = { x: 10, y: 10 };
+
+    // Khởi tạo mồi
+    let food = {
+      x: Math.floor(Math.random() * canvasSize),
+      y: Math.floor(Math.random() * canvasSize)
+    };
+
+    // Khởi tạo điểm số
+    let score = 0;
+
+    // Khởi tạo hướng di chuyển
+    let d = "RIGHT";
+
+    // Lắng nghe sự kiện nhấn phím
+    document.addEventListener("keydown", direction);
+
+    // Xác định hướng di chuyển dựa trên phím nhấn
+    function direction(event) {
+      if (event.keyCode === 37 && d !== "RIGHT") {
+        d = "LEFT";
+      } else if (event.keyCode === 38 && d !== "DOWN") {
+        d = "UP";
+      } else if (event.keyCode === 39 && d !== "LEFT") {
+        d = "RIGHT";
+      } else if (event.keyCode === 40 && d !== "UP") {
+        d = "DOWN";
+      }
+    }
+
+    // Kiểm tra va chạm
+    function collision(head, array) {
+      for (let i = 0; i < array.length; i++) {
+        if (head.x === array[i].x && head.y === array[i].y) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Vẽ trò chơi
+    function draw() {
+      // Xóa canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Vẽ rắn
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? "green" : "green";
+        ctx.fillRect(snake[i].x * box, snake[i].y * box, box, box);
+        ctx.strokeStyle = "black";
+        ctx.strokeRect(snake[i].x * box, snake[i].y * box, box, box);
+      }
+
+      // Vẽ mồi
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x * box, food.y * box, box, box);
+
+      // Cập nhật vị trí đầu rắn
+      let snakeX = snake[0].x;
+      let snakeY = snake[0].y;
+
+      // Xác định hướng di chuyển
+      if (d === "LEFT") snakeX -= 1;
+      if (d === "UP") snakeY -= 1;
+      if (d === "RIGHT") snakeX += 1;
+      if (d === "DOWN") snakeY += 1;
+
+      // Kiểm tra va chạm với tường hoặc chính nó
+      if (
+        snakeX < 0 ||
+        snakeY < 0 ||
+        snakeX >= canvasSize ||
+        snakeY >= canvasSize ||
+        collision({ x: snakeX, y: snakeY }, snake)
+      ) {
+        gameOver();
+      }
+      
+      function gameOver() {
+  clearInterval(game); // Dừng vòng lặp game
+  alert("Game Over"); // Hiển thị thông báo "Game Over"
+}
+
+      // Kiểm tra va chạm với mồi
+      if (snakeX === food.x && snakeY === food.y) {
+        // Tăng điểm số
+        score++;
+        // Tạo mồi mới
+        food = {
+          x: Math.floor(Math.random() * canvasSize),
+          y: Math.floor(Math.random() * canvasSize)
+        };
+      } else {
+        // Xóa phần đuôi của rắn
+        snake.pop();
+      }
+
+      // Thêm đầu rắn mới
+      ctx.fillStyle = "red"
+      let newHead = { x: snakeX, y: snakeY };
+      
+      snake.unshift(newHead);
+
+      // Hiển thị điểm số
+      ctx.fillStyle = "white";
+      ctx.font = "20px Arial";
+      ctx.fillText("Điểm số: " + score, box, box);
+    }
+
+    // Thực hiện vẽ trò chơi mỗi 100ms
+    let game = setInterval(draw, 300);
+  </script>
+</body>
+</html>
